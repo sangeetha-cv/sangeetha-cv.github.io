@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sangeetha Devarajan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f8f9;
+    --dot:#dfe2e6;
+    --panel:#ffffff;
+    --panel-alt:#f0f0f0;
+    --head:#d4d4d4;
+    --sub:#e8e8e8;
+    --edge:#a3a3a3;
+    --ink:#6e6e6e;
+    --ink-soft:#7d7d7d;
+    --muted:#949494;
+    --faint:#bcbcbc;
+    --index:#c4c4c4;
+    --sel:#a5de8e;
+    --sel-edge:#4e8f3e;
+    --sel-ink:#4e7042;
+    --col:720px;
+    --gap:52px;
+    --detail:600px;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --sans:"Inter",system-ui,-apple-system,sans-serif;
+    --serif:"EB Garamond",Georgia,serif;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background-color:var(--bg);
+    background-image:radial-gradient(var(--dot) 1.6px, transparent 1.6px);
+    background-size:40px 40px;
+    background-position:20px 20px;
+    font-family:var(--sans);
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+
+  /* ---------- pannable canvas ---------- */
+  .viewport{padding:clamp(34px,6vw,64px) 0 clamp(60px,10vw,120px)}
+  .canvas{
+    transition:transform .75s cubic-bezier(.22,.61,.36,1);
+    will-change:transform;
+  }
+  .stage{position:relative;width:var(--col);margin:0 auto}
+
+  /* ---------- header ---------- */
+  header{margin-bottom:52px}
+  .name{
+    font-family:var(--mono);text-transform:uppercase;
+    font-size:clamp(13px,3.6vw,19px);font-weight:700;letter-spacing:.18em;
+    color:var(--ink);margin:0 0 clamp(14px,2.4vw,22px);word-break:break-word;
+  }
+  .toplinks{font-family:var(--mono);font-size:clamp(11px,2.6vw,12.5px);letter-spacing:.12em;margin-bottom:clamp(18px,2.6vw,30px)}
+  .toplinks a{color:var(--muted);text-decoration:underline;text-underline-offset:3px;margin-right:clamp(20px,4vw,34px);display:inline-block}
+  .toplinks a:hover,.toplinks a:focus-visible{color:var(--ink)}
+  .interests{
+    font-family:var(--mono);text-transform:uppercase;
+    font-size:10px;letter-spacing:.02em;color:var(--muted);
+    margin-bottom:clamp(20px,3vw,34px);line-height:1.7;
+  }
+  .statement{
+    font-family:var(--serif);font-size:clamp(19px,2.9vw,24px);line-height:1.45;color:var(--ink);
+    margin:0;max-width:var(--col);
+  }
+
+  /* ---------- node panels ---------- */
+  .panel{
+    background:var(--panel);
+    border:1.4px solid var(--edge);
+    box-shadow:1.5px 2px 3px rgba(0,0,0,.10);
+    margin-bottom:clamp(34px,5vw,54px);
+    position:relative;
+  }
+  .panel-head{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--head);border-bottom:1px solid var(--edge);
+    padding:8px clamp(10px,2vw,14px);
+    font-family:var(--mono);text-transform:uppercase;
+    font-size:clamp(10.5px,2.4vw,12px);font-weight:700;letter-spacing:.12em;color:var(--ink);
+  }
+  .panel-path{font-weight:400;letter-spacing:.06em;color:var(--faint);font-size:clamp(9.5px,2vw,11px);white-space:nowrap;padding-left:8px}
+  .group-label{
+    background:var(--sub);padding:6px clamp(10px,2vw,14px);
+    font-family:var(--mono);text-transform:uppercase;
+    font-size:clamp(9.5px,2.1vw,10.5px);font-weight:700;letter-spacing:.12em;color:var(--muted);
+  }
+
+  .row{
+    display:flex;gap:clamp(10px,2vw,16px);align-items:flex-start;
+    padding:clamp(10px,2vw,13px) clamp(10px,2vw,14px);background:var(--panel);
+    position:relative;
+  }
+  .row.alt{background:var(--panel-alt)}
+  .row-index{font-family:var(--mono);font-size:clamp(10px,2vw,11.5px);color:var(--index);padding-top:2px;min-width:11px;flex:none}
+  .row-title{display:block;font-size:clamp(12.5px,2.6vw,13.5px);font-weight:600;color:var(--ink);line-height:1.4}
+  .row-title .plain{font-weight:400;color:var(--muted)}
+  .row-title .tag{font-weight:400;font-style:italic;font-size:.82em;color:var(--faint)}
+  .row-meta{display:block;font-size:clamp(10.5px,2.3vw,11.5px);color:var(--muted);margin-top:3px;line-height:1.45}
+  .row-meta em{font-style:italic}
+
+  /* clickable rows + their output port */
+  button.row{
+    width:100%;text-align:left;border:0;font:inherit;cursor:pointer;
+    border-radius:0;
+  }
+  button.row:hover{background:#eaeaea}
+  button.row:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+  button.row .port{
+    position:absolute;right:-5.5px;top:50%;transform:translateY(-50%);
+    width:9px;height:9px;border-radius:50%;
+    background:#d5d5d5;border:1.2px solid var(--edge);
+  }
+  button.row[aria-expanded="true"],
+  button.row[aria-expanded="true"]:hover{
+    background:var(--sel);
+    box-shadow:inset 0 0 0 1.2px var(--sel-edge);
+  }
+  button.row[aria-expanded="true"] .row-title{color:var(--sel-ink)}
+  button.row[aria-expanded="true"] .row-meta{color:#6e9660}
+  button.row[aria-expanded="true"] .row-index{color:#6e9660}
+  button.row[aria-expanded="true"] .port{background:#7fbf68;border-color:#2f5c22}
+
+  .panel-hint{
+    background:var(--panel);
+    border-bottom:1px solid var(--sub);
+    padding:6px clamp(10px,2vw,14px);
+    font-family:var(--sans);font-style:italic;
+    font-size:clamp(9.5px,2vw,10.5px);color:var(--faint);
+  }
+
+  /* ---------- contact line ---------- */
+  .contact{margin-top:-14px}
+  .contact-label{
+    font-family:var(--mono);text-transform:uppercase;
+    font-size:clamp(10.5px,2.4vw,12px);font-weight:700;letter-spacing:.12em;
+    color:var(--ink);margin-bottom:12px;
+  }
+  .contact-line{font-family:var(--mono);font-size:clamp(10px,2.2vw,11.5px);letter-spacing:.05em;color:var(--muted);line-height:1.9;word-break:break-word}
+    .contact-row{display:block;margin-bottom:4px}
+  .contact-key{display:inline-block;min-width:88px;color:var(--faint)}
+  .contact-line a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+  .contact-line a:hover,.contact-line a:focus-visible{color:var(--ink)}
+
+  /* ---------- synopsis node ---------- */
+  .detail{
+    position:absolute;
+    left:calc(var(--col) + var(--gap));
+    width:var(--detail);
+    background:var(--panel);
+    border:1.4px solid var(--edge);
+    box-shadow:1.5px 2px 3px rgba(0,0,0,.10);
+    opacity:0;visibility:hidden;
+    transition:opacity .4s ease .2s,visibility .4s ease .2s;
+  }
+  .detail.open{opacity:1;visibility:visible}
+  .detail-port{
+    position:absolute;left:-5.5px;top:96px;
+    width:10px;height:10px;border-radius:50%;
+    background:#d5d5d5;border:1.2px solid var(--edge);
+  }
+  .detail-title{
+    font-family:var(--serif);font-size:clamp(19px,3.4vw,24px);font-weight:500;color:var(--ink);
+    padding:14px clamp(12px,2.4vw,18px) 12px;line-height:1.28;
+  }
+  .detail-meta{
+    background:var(--panel-alt);padding:8px clamp(12px,2.4vw,18px);
+    font-size:clamp(11px,2.3vw,12px);color:var(--muted);line-height:1.6;
+  }
+  .detail-meta em{font-style:italic}
+  .block-label{
+    background:var(--sub);padding:6px clamp(12px,2.4vw,18px);
+    font-family:var(--mono);text-transform:uppercase;
+    font-size:clamp(9.5px,2.1vw,10.5px);font-weight:700;letter-spacing:.12em;color:var(--muted);
+  }
+  .block-body{padding:14px clamp(12px,2.4vw,18px);font-size:clamp(12.5px,2.5vw,13px);line-height:1.65;color:var(--ink-soft)}
+  .block-body ol,.block-body ul{margin:0;padding-left:1.25em}
+  .block-body li{margin-bottom:7px}
+  .block-body li:last-child{margin-bottom:0}
+  .detail-links{padding:14px clamp(12px,2.4vw,18px);font-size:clamp(12.5px,2.5vw,13px);display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+  .detail-links a,.detail-links button{
+    font:inherit;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;
+    text-decoration:underline;text-underline-offset:3px;
+  }
+  .detail-links a:hover,.detail-links button:hover{color:#4a4a4a}
+
+  /* ---------- wire ---------- */
+  .wires{position:absolute;inset:0;overflow:visible;pointer-events:none}
+  .wire-back{fill:none;stroke:#9a9a9a;stroke-width:3.2}
+  .wire-core{fill:none;stroke:#e8e8e8;stroke-width:1}
+  .wire{opacity:0;transition:opacity .35s ease}
+  .wire.show{opacity:1}
+
+  /* ---------- mobile: stack instead of pan ---------- */
+  @media (max-width:1249px){
+    :root{--col:min(84vw,600px)}
+    .canvas{transform:none !important}
+    .detail{
+      position:relative;left:0;top:auto !important;width:100%;margin:0 0 clamp(34px,5vw,54px);
+      display:none;opacity:1;visibility:visible;transition:none;
+    }
+    .detail.open{display:block}
+    .detail-port{left:auto;right:-6px}
+    .statement{font-size:18px}
+    .detail-title{font-size:21px}
+  }
+  @media (max-width:700px){
+    :root{--col:min(80vw,560px)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .canvas,.detail,.wire{transition:none}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="viewport">
+  <div class="canvas" id="canvas">
+    <div class="stage" id="stage">
+      <svg class="wires" id="wires" aria-hidden="true"></svg>
+      <header>
+        <h1 class="name" id="siteName"></h1>
+        <nav class="toplinks" id="topLinks"></nav>
+        <p class="interests" id="interests"><span></span></p>
+        <p class="statement" id="statement"></p>
+      </header>
+      <main id="panels"></main>
+      <section class="contact">
+        <div class="contact-label">Get in touch</div>
+        <div class="contact-line" id="contactLine"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =======================================================================
+   YOUR CONTENT - edit everything inside this SITE object.
+   Rows that include a "detail" become clickable and open a synopsis node.
+   Rows without "detail" are plain text.
+   ======================================================================= */
+const SITE = {
+  name: "Sangeetha Devarajan",
+
+  topLinks: [
+    { label: "Portfolio",  url: "https://drive.google.com/file/d/1v3chEFxn-36QMPLapDyxTuzzTotvQAOM/view?usp=sharing" },   /* <- paste your Google Drive link */
+    { label: "CV",         url: "https://drive.google.com/file/d/1FwyI9XxzdBMMGomz3GptSO3zOi6zGdW8/view?usp=sharing" }    /* <- paste your Google Drive link */
+  ],
+
+  interests: "Architecture · Urban design · Urban planning · Energy simulations · Parametric design",
+
+  statement: "I'm an architect interested in sustainable development, material innovation and climate sensitive design and planning.",
+
+  contact: {
+    email: "sangeethadevarajan2001@gmail.com",
+    linkedin: { label: "Sangeetha Devarajan", url: "https://www.linkedin.com/in/" }
+  },
+
+  sections: [
+    {
+      title: "About me",
+      groups: [
+        {
+          label: "Education",
+          rows: [
+            { title: "M.Sc Integrated Sustainable Design - National University of Singapore", plain: "(2025-26)" },
+            { title: "B.Arch - National Institute of Technology, Trichy", plain: "(2019-24)" }
+          ]
+        },
+        {
+          label: "Internships & work experience",
+          rows: [
+            { title: "Research Assistant - City Syntax Lab, NUS", plain: "(May 2026 - now)" },
+            { title: "Sustainability Junior Architect - Midori Architects, Chennai", plain: "(June 2024 - May 2025)" },
+            { title: "Architectural Intern - Apogee pvt. ltd., Singapore", plain: "(May 2026 - July 2026)" },
+            { title: "Architectural Intern - Design Concepts, Gangtok", plain: "(January 2023 - July 2023)" },
+            { title: "Intern, AI and Prompt Engineering - Alspark Team", plain: "(May 2024 - September 2024)" }
+          ]
+        }
+      ]
+    },
+
+    {
+      title: "Working projects",
+      groups: [
+        {
+          rows: [
+            {
+              title: "AI Tool to Calculate Sun Shading Angles and Spatial Daylight Autonomy (sDA) for Initial Building Design",
+              plain: "- AI in Urbanism",
+              detail: {
+                meta: "AI in Urbanism",
+                blocks: [
+                  { label: "Brief", text: "This AI model aims to automate the time-intensive process of calculating shading dimensions and determining the Spatial Daylight Autonomy (sDA) value for early stages of building design using artificial intelligence (AI)." },
+                  { label: "Approach", text: "<ol><li>A python based shading calculator that encodes the required mathematical formulas to determine louver angles and shading depths based on user inputs such as window dimensions, location and orientation of building and preferred date and time.</li><li>A linear regression AI model trained on a dataset of 2,000 simulated daylight scenarios (automated using python within Grasshopper) using the Ladybug tool in Grasshopper to predict sDA value based on window, room and shading device dimensions.</li></ol>" },
+                  { label: "Software and tools", text: "Rhino 3D, Grasshopper (Ladybug and Dragonfly), Python and Scikit Learn" },
+                  { label: "Conclusion", text: "An AI model where you enter building location, orientation, dimensions and wall-window ratio to get optimal shading angles and sDA based on physics-based calculation and simulations data." }
+                ],
+                links: [ { label: "Try tool", url: "#" } ]
+              }
+            },
+            {
+              title: "Whereisthenorth.com",
+              plain: "- Architecture Website",
+              detail: {
+                meta: "Architecture website",
+                blocks: [
+                  { label: "Brief", text: "Whereisthenorth is an architecture website founded by a team of three students. The goal was to provide information and news from the industry in an easy-to-understand manner for students and architects." },
+                  { label: "Approach", text: "<ul><li>Published over 200 articles related to the field of architecture, urban design, planning and software development.</li><li>Managed a team of 8 writers and 2 designers, producing engaging content that attracted 30k monthly views and fostered a growing online community.</li><li>Conducted a workshop on SEO optimisation and prompt engineering for Archcult 2024, an online architecture writing competition at the NASA convention of 2023.</li></ul>" },
+                  { label: "Software and tools", text: "Webflow, Figma and Wordpress (Oxygen)" }
+                ],
+                links: [ { label: "Visit whereisthenorth.com", url: "https://www.whereisthenorth.com/search-where-is-the-north" } ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      title: "Publications & research works",
+      groups: [
+        {
+          rows: [
+            {
+              title: "Height-Stratified Diurnal Heat Flux Modelling of Tropical Buildings Using Coupled Urban Microclimate and Building Energy Simulation",
+              tag: "(Ongoing)",
+              meta: "Sangeetha Devarajan, Xu Ruohan, Yu Qian Ang",
+              detail: {
+                meta: "Sangeetha Devarajan, Xu Ruohan, Yu Qian Ang · Ongoing research",
+                blocks: [
+                  { label: "Abstract", text: "Urban heat island research in tropical cities has largely portrayed heat as a planar system, often focusing on the pedestrian level. Treating every building as a single point source of heat at street level misrepresents where heat originates, how it moves, and what can be done to mitigate it. This assumption becomes increasingly limiting for highly dense, urbanized cities like Singapore, where the dominant building typology is mid- and high-rise blocks with variations in building geometry, facade treatments, material properties, mechanical systems, and occupancy. This study develops a vertically stratified, diurnally resolved heat flux model for mixed-height precincts in Singapore, using a two-way coupling between microclimate simulation and building energy simulation tools." },
+                  { label: "Software and tools", text: "Rhino 3D, Grasshopper, Python, EnergyPlus and ENVI-met" },
+                  { label: "Conclusion", text: "The framework seeks to provide a more spatially resolved premise for urban climate analysis and building energy modelling to support climate-responsive planning and design strategies for dense tropical cities where heat exchange increasingly occurs across the vertical dimension." }
+                ],
+                links: []
+              }
+            },
+            {
+              title: "Height-Efficiency Model for Urban Biophilic Design in Singapore's Buildings",
+              tag: "(Ongoing)",
+              meta: "Sangeetha Devarajan · Supervisor: Anuj Jain",
+              detail: {
+                meta: "Sangeetha Devarajan · Supervisor: Anuj Jain · Ongoing research",
+                blocks: [
+                  { label: "Abstract", text: "Existing research establishes that vertical greenery delivers measurable thermal and environmental benefits, and separately establishes that building height constrains faunal colonisation. What has not been established is how the performance of the vegetation itself varies as a continuous function of height in a tropical context, what that variation implies for the magnitude and composition of the ecosystem services delivered, and how the resource inputs required to sustain vegetation at height compare against those services: at what height does a biodiverse building feature transition from a net provider of ecosystem services to a net consumer of resources, and can that threshold be expressed mathematically and economically in a way that informs architectural decision-making?" },
+                  { label: "Software and tools", text: "Rhino 3D, Grasshopper, Python, EnergyPlus and ENVI-met" },
+                  { label: "Conclusion", text: "A continuous mathematical model of floral ecosystem service delivery as a function of building height in a tropical context, with faunal contribution incorporated as a modifier on maintenance requirement, and identification of an optimum height band for building-integrated vegetation." }
+                ],
+                links: []
+              }
+            },
+            {
+              title: "Analyzing the Acoustic Properties of Unglazed Terracotta in an Indoor Office Environment",
+              meta: "Sangeetha Devarajan, Ambika Kannusami, Amalan Sigmund Kaushik · <em>Journal of Salutogenic Architecture</em>, 2024",
+              detail: {
+                meta: "Sangeetha Devarajan, Ambika Kannusami, Amalan Sigmund Kaushik · <em>Journal of Salutogenic Architecture</em>, 2024",
+                blocks: [
+                  { label: "Abstract", text: "Work environments commonly address users' thermal, visual, and spatial comfort; however, acoustic comfort tends to be neglected, leading to potential discomfort. Terracotta, a durable indigenous material deeply ingrained in Indian households for centuries, is conventionally utilized in constructing roofs, floors, and decor but remains unexplored for its acoustic attributes. This study evaluates the acoustic performance of unglazed terracotta tiles as a salutogenic resource, employing the reverberation room method (ASTM C423) and the impulse response method (ISO 3382-2) in an indoor office space. Parameters such as sound absorption, background noise, sound pressure level, Speech Transmission Index (STI), Reverberation Time (RT), and noise curves are meticulously measured both pre- and post-placement of terracotta specimens using a Bedrock SM90 Class 1 Sound Level Meter." },
+                  { label: "Conclusion", text: "The findings from this research aim to encourage architects to consider terracotta as a prospective material for enhancing acoustic conditions within built environments. Upon analyzing the reverberation, speech intelligibility, background noise, signal-to-noise ratio, and noise curve evaluations, it was observed that terracotta demonstrates high effectiveness as a panel absorber, especially in higher frequency ranges. Further improvements were noted when the panels were given a foam backing, suggesting potential as an effective acoustic panel." },
+                  { label: "Published in", text: "Journal of Salutogenic Architecture - Original Scientific Paper, 2024, Volume 3, Issue 1, pages 64-79" }
+                ],
+                links: [ { label: "Read full paper", url: "https://drive.google.com/file/d/1dbotwt4Gh1WOZE81KP1k93DZAv3hLyR3/view?usp=sharing" }, { label: "DOI", url: "https://doi.org/10.38027/jsalutogenic_vol3no1_6" } ]
+              }
+            },
+            {
+              title: "Strategies to Achieve Efficient Water Management in a Water Intensive Luxury Hotel",
+              meta: "Sangeetha Devarajan, Ambika Kannusami, Amalan Sigmund Kaushik",
+              detail: {
+                meta: "Sangeetha Devarajan, Ambika Kannusami, Amalan Sigmund Kaushik · Research work",
+                blocks: [
+                  { label: "Abstract", text: "The research analyzed methods for luxury hotels to optimize water usage and achieve net-zero consumption through retrofitting existing technologies. After mapping blue/green systems, pollution points, demographic data, water sources (natural and municipal) and material availability using QGIS, detailed water usage was calculated. A framework was designed to reduce consumption without compromising on luxury experience. Financial aspects, including water bills, retrofitting costs, return on investment, and payback periods, showcasing practical solutions for sustainable management was addressed." },
+                  { label: "Conclusion", text: "A framework model for net-zero water usage in luxury hotels was proposed as a part of the sustainability movement." }
+                ],
+                links: []
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      title: "Presentations & talks",
+      groups: [
+        {
+          rows: [
+            {
+              title: "Net-zero Multi-family Housing Design",
+              plain: "- Solar Decathlon India",
+              detail: {
+                meta: "Solar Decathlon India",
+                blocks: [
+                  { label: "Topic", text: "Led Team Etheria, an interdisciplinary team (architecture and engineering) of 15 members. Shortlisted among the top 5 teams in India for the final round and presented our work at the Infosys campus in Mysore for designing a net-zero apartment housing complex." },
+                  { label: "Takeaway", text: "Designed an apartment complex for project partners, Vessella Group, and achieved near net-zero on energy (5.24 EPI) and water performance, days of autonomy according to RELi standards." }
+                ],
+                links: [ { label: "Project report", url: "https://drive.google.com/file/d/1fQbCLe-hmtlGCFLnZELoejETHGpT72xo/view?usp=sharing" } ]
+              }
+            },
+            {
+              title: "Website Development and Prompt Engineering Workshop",
+              plain: "- Archcult '24",
+              detail: {
+                meta: "Archcult \'24",
+                blocks: [
+                  { label: "Topic", text: "Conducted workshop on website development, SEO optimisation and prompt engineering for Archcult 2024 and architecture writing competition online." },
+                  { label: "Outcome", text: "Awarded plaque of recognition by NIT Tiruchirappalli for conducting workshop for Archcult." }
+                ],
+                links: []
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+/* =======================================================================
+   Rendering + the click-to-pan behaviour. No need to edit below here.
+   ======================================================================= */
+const stage   = document.getElementById('stage');
+const canvas  = document.getElementById('canvas');
+const wiresEl = document.getElementById('wires');
+const panelsEl= document.getElementById('panels');
+
+/* --- header --- */
+document.getElementById('siteName').textContent = SITE.name;
+document.title = SITE.name;
+document.querySelector('#interests span').textContent = SITE.interests;
+document.getElementById('statement').textContent = SITE.statement;
+document.getElementById('topLinks').innerHTML = SITE.topLinks
+  .map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join('');
+document.getElementById('contactLine').innerHTML =
+  `<span class="contact-row"><span class="contact-key">Email</span>` +
+  `<a href="mailto:${SITE.contact.email}">${SITE.contact.email}</a></span>` +
+  `<span class="contact-row"><span class="contact-key">LinkedIn</span>` +
+  `<a href="${SITE.contact.linkedin.url}" target="_blank" rel="noopener">${SITE.contact.linkedin.label} ↗</a></span>`;
+
+/* --- panels --- */
+let uid = 0;
+const details = {};
+
+SITE.sections.forEach((section, si) => {
+  const panel = document.createElement('section');
+  panel.className = 'panel';
+
+  const head = document.createElement('div');
+  head.className = 'panel-head';
+  head.innerHTML = `<span>${section.title}</span><span class="panel-path">{0;${si}}</span>`;
+  panel.appendChild(head);
+
+  let stripe = 0;
+  section.groups.forEach(group => {
+    if (group.label) {
+      const gl = document.createElement('div');
+      gl.className = 'group-label';
+      gl.textContent = group.label;
+      panel.appendChild(gl);
+      stripe = 0;
+    }
+    group.rows.forEach(row => {
+      const clickable = !!row.detail;
+      const idx = stripe++;
+      const el = document.createElement(clickable ? 'button' : 'div');
+      el.className = 'row' + (idx % 2 ? ' alt' : '');
+
+      let titleHTML = row.plain
+        ? `${row.title} <span class="plain">${row.plain}</span>`
+        : row.title;
+      if (row.tag) titleHTML += ` <span class="tag">${row.tag}</span>`;
+      el.innerHTML =
+        `<span class="row-index">${idx}</span>` +
+        `<span><span class="row-title">${titleHTML}</span>` +
+        (row.meta ? `<span class="row-meta">${row.meta}</span>` : '') +
+        `</span>`;
+
+      if (clickable) {
+        const id = 'd' + (uid++);
+        el.type = 'button';
+        el.dataset.id = id;
+        el.setAttribute('aria-expanded', 'false');
+        el.insertAdjacentHTML('beforeend', '<span class="port"></span>');
+        details[id] = { row: row, el: el, node: buildDetail(id, row) };
+        el.addEventListener('click', () => toggle(id));
+      }
+      panel.appendChild(el);
+    });
+  });
+  if (panel.querySelector('button.row')) {
+    const hint = document.createElement('div');
+    hint.className = 'panel-hint';
+    hint.textContent = 'Click a title to read more';
+    head.insertAdjacentElement('afterend', hint);
+  }
+
+  panelsEl.appendChild(panel);
+});
+
+function buildDetail(id, row) {
+  const d = row.detail;
+  const node = document.createElement('article');
+  node.className = 'detail';
+  node.id = id;
+  node.innerHTML =
+    '<span class="detail-port"></span>' +
+    `<div class="panel-head"><span>Synopsis</span><span class="panel-path">{1;0}</span></div>` +
+    `<h2 class="detail-title">${row.title}</h2>` +
+    (d.meta ? `<div class="detail-meta">${d.meta}</div>` : '') +
+    d.blocks.map(b =>
+      `<div class="block-label">${b.label}</div><div class="block-body">${b.text}</div>`
+    ).join('') +
+    '<div class="block-label">Links</div>' +
+    '<div class="detail-links">' +
+      (d.links || []).map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join('') +
+      `<button type="button" data-close="${id}">← Back to list</button>` +
+    '</div>';
+  node.querySelector('[data-close]').addEventListener('click', () => close());
+  return node;
+}
+
+/* --- open / close --- */
+let openId = null;
+let defaultOpen = false;
+const isWide = () => window.innerWidth >= 1250;
+
+function toggle(id) { (openId === id) ? close() : open(id); }
+
+function open(id, silent) {
+  if (openId) closeQuiet();
+  openId = id;
+  defaultOpen = !!silent;
+  const { el, node } = details[id];
+  el.setAttribute('aria-expanded', 'true');
+
+  if (isWide()) {
+    stage.appendChild(node);
+    node.style.width = detailWidth() + 'px';
+    const top = offsetInStage(el) - 40;
+    node.style.top = Math.max(0, top) + 'px';
+    requestAnimationFrame(() => {
+      node.classList.add('open');
+      drawWire(el, node);
+      pan(true);
+      stage.style.minHeight = (node.offsetTop + node.offsetHeight + 70) + 'px';
+      const box = node.getBoundingClientRect();
+      const over = box.bottom - window.innerHeight + 40;
+      if (!silent && (over > 0 || box.top < 0)) {
+        window.scrollBy({ top: box.top < 0 ? box.top - 40 : over,
+                          behavior: prefersMotion() ? 'auto' : 'smooth' });
+      }
+    });
+  } else {
+    el.closest('.panel').insertAdjacentElement('afterend', node);
+    node.classList.add('open');
+    requestAnimationFrame(() => drawWire(el, node));
+    if (!silent) {
+      const smooth = prefersMotion() ? 'auto' : 'smooth';
+      const y = window.scrollY + node.getBoundingClientRect().top - 110;
+      window.scrollTo({ top: Math.max(0, y), behavior: smooth });
+    }
+  }
+}
+
+function closeQuiet() {
+  if (!openId) return;
+  const { el, node } = details[openId];
+  el.setAttribute('aria-expanded', 'false');
+  node.classList.remove('open');
+  if (node.parentNode) node.parentNode.removeChild(node);
+  stage.style.minHeight = '';
+  wiresEl.innerHTML = '';
+  openId = null;
+  defaultOpen = false;
+}
+
+function close() {
+  const prev = openId ? details[openId].el : null;
+  closeQuiet();
+  pan(false);
+  if (prev) prev.focus({ preventScroll: true });
+}
+
+function cssVar(n) {
+  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(n));
+}
+
+/* how wide the synopsis can be without pushing the list off-screen */
+function detailWidth() {
+  const col = cssVar('--col') || 720, gap = cssVar('--gap') || 52;
+  return Math.min(cssVar('--detail') || 600, window.innerWidth - col - gap - 64);
+}
+
+/* slide just enough to bring the synopsis alongside — the list stays fully visible */
+function pan(out) {
+  if (!isWide()) return;
+  if (!out) { canvas.style.transform = 'translateX(0)'; return; }
+  const gap = cssVar('--gap') || 52;
+  canvas.style.transform = `translateX(${-((gap + detailWidth()) / 2)}px)`;
+}
+
+function offsetInStage(el) {
+  let y = 0, n = el;
+  while (n && n !== stage) { y += n.offsetTop; n = n.offsetParent; }
+  return y;
+}
+
+function drawWire(el, node) {
+  const y1 = offsetInStage(el) + el.offsetHeight / 2;
+  const x1 = stage.offsetWidth;
+  const y2 = offsetInStage(node) + 96 + 6;
+  let dPath;
+  if (isWide()) {
+    const x2 = node.offsetLeft;
+    const c  = (x2 - x1) * 0.55;
+    dPath = `M ${x1} ${y1} C ${x1 + c} ${y1}, ${x2 - c} ${y2}, ${x2} ${y2}`;
+  } else {
+    // synopsis sits directly below: loop the wire out around the right edge
+    const room  = (window.innerWidth - stage.offsetWidth) / 2 - 9;
+    const bulge = Math.min(80, (y2 - y1) * 0.42, room);
+    if (bulge < 9) { wiresEl.innerHTML = ''; return; }   // too narrow to draw cleanly
+    dPath = `M ${x1} ${y1} C ${x1 + bulge} ${y1}, ${x1 + bulge} ${y2}, ${x1} ${y2}`;
+  }
+  wiresEl.innerHTML =
+    `<g class="wire"><path class="wire-back" d="${dPath}"/><path class="wire-core" d="${dPath}"/></g>`;
+  requestAnimationFrame(() => wiresEl.querySelector('.wire').classList.add('show'));
+}
+
+function prefersMotion() {
+  return window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+}
+
+/* open the first synopsis by default on wide screens */
+function sideRoom() {                       // space to the right of the centred column
+  return (window.innerWidth - stage.offsetWidth) / 2 - (cssVar('--gap') || 52) - 24;
+}
+
+function openFirst() {
+  const first = Object.keys(details)[0];
+  if (!first || openId) return;
+  const prev = canvas.style.transition;
+  canvas.style.transition = 'none';
+  open(first, true);
+  requestAnimationFrame(() => { canvas.offsetHeight; canvas.style.transition = prev; });
+}
+
+/* stretch the interests line to match the width of the panels below */
+function fitInterests() {
+  const p = document.getElementById('interests');
+  const span = p.firstElementChild;
+  p.style.whiteSpace = 'nowrap';
+  p.style.fontSize = '10px';
+  const natural = span.offsetWidth;
+  if (!natural) return;
+  const size = Math.min(15, Math.max(8, 10 * (stage.clientWidth - 2) / natural));
+  p.style.fontSize = size.toFixed(2) + 'px';
+  if (size <= 8.05) p.style.whiteSpace = 'normal';   // phones: let it wrap instead
+}
+fitInterests();
+openFirst();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitInterests(); });
+
+/* keyboard + resize */
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && openId) close(); });
+let rt;
+window.addEventListener('resize', () => {
+  clearTimeout(rt);
+  rt = setTimeout(() => {
+    fitInterests();
+    if (openId) { const id = openId, wasDefault = defaultOpen; closeQuiet(); canvas.style.transform = 'translateX(0)'; open(id, wasDefault); defaultOpen = wasDefault; }
+  }, 150);
+});
+</script>
+</body>
+</html>
