@@ -263,7 +263,7 @@ const SITE = {
 
   contact: {
     email: "sangeethadevarajan2001@gmail.com",
-    linkedin: { label: "Sangeetha Devarajan", url: "https://www.linkedin.com/in/" }
+    linkedin: { label: "Sangeetha Devarajan", url: "https://www.linkedin.com/in/sangeetha-devarajan-7188861a0" }
   },
 
   sections: [
@@ -647,7 +647,7 @@ function sideRoom() {                       // space to the right of the centred
 
 function openFirst() {
   const first = Object.keys(details)[0];
-  if (!first || openId) return;
+  if (!first || openId || !isWide()) return;   // phones start closed
   const prev = canvas.style.transition;
   canvas.style.transition = 'none';
   open(first, true);
