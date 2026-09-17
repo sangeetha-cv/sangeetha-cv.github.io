@@ -186,12 +186,20 @@
   .block-body ol,.block-body ul{margin:0;padding-left:1.25em}
   .block-body li{margin-bottom:7px}
   .block-body li:last-child{margin-bottom:0}
-  .detail-links{padding:14px clamp(12px,2.4vw,18px);font-size:clamp(12.5px,2.5vw,13px);display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
-  .detail-links a,.detail-links button{
-    font:inherit;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;
-    text-decoration:underline;text-underline-offset:3px;
+  .detail-links{padding:14px clamp(12px,2.4vw,18px);font-size:clamp(12.5px,2.5vw,13px);display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+  /* outbound links: boxed and bold so they read as buttons */
+  .detail-links a{
+    font:inherit;font-weight:600;color:#5a5a5a;cursor:pointer;text-decoration:none;
+    background:var(--panel-alt);border:1px solid var(--edge);
+    padding:6px 12px;display:inline-block;line-height:1.3;
   }
-  .detail-links a:hover,.detail-links button:hover{color:#4a4a4a}
+  .detail-links a:hover,.detail-links a:focus-visible{background:#e4e4e4;color:#4a4a4a;border-color:#8a8a8a}
+  /* back to list stays a plain text link */
+  .detail-links button{
+    font:inherit;color:var(--muted);background:none;border:0;padding:0;cursor:pointer;
+    text-decoration:underline;text-underline-offset:3px;margin-left:6px;
+  }
+  .detail-links button:hover,.detail-links button:focus-visible{color:var(--ink)}
 
   /* ---------- wire ---------- */
   .wires{position:absolute;inset:0;overflow:visible;pointer-events:none}
@@ -254,7 +262,7 @@ const SITE = {
 
   topLinks: [
     { label: "Portfolio",  url: "https://drive.google.com/file/d/1v3chEFxn-36QMPLapDyxTuzzTotvQAOM/view?usp=sharing" },   /* <- paste your Google Drive link */
-    { label: "CV",         url: "https://drive.google.com/file/d/1FwyI9XxzdBMMGomz3GptSO3zOi6zGdW8/view?usp=sharing" }    /* <- paste your Google Drive link */
+    { label: "CV",         url: "https://drive.google.com/file/d/1oZ_SNTAEhYzjYDyog_UCrjKEzFWzL2PJ/view?usp=sharing" }    /* <- paste your Google Drive link */
   ],
 
   interests: "Architecture · Urban design · Urban planning · Energy simulations · Parametric design",
@@ -306,7 +314,7 @@ const SITE = {
                   { label: "Software and tools", text: "Rhino 3D, Grasshopper (Ladybug and Dragonfly), Python and Scikit Learn" },
                   { label: "Conclusion", text: "An AI model where you enter building location, orientation, dimensions and wall-window ratio to get optimal shading angles and sDA based on physics-based calculation and simulations data." }
                 ],
-                links: [ { label: "Try tool", url: "https://louvertool.streamlit.app/" } ]
+                links: [ { label: "Try tool", url: "#" } ]
               }
             },
             {
