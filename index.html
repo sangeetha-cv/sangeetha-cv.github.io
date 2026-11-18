@@ -661,7 +661,7 @@ function sideRoom() {                       // space to the right of the centred
 
 function openFirst() {
   const first = Object.keys(details)[0];
-  if (!first || openId || !isWide()) return;   // phones start closed
+  if (!first || openId) return;   // open the first synopsis on load (desktop + phone)
   const prev = canvas.style.transition;
   canvas.style.transition = 'none';
   open(first, true);
