@@ -261,8 +261,8 @@ const SITE = {
   name: "Sangeetha Devarajan",
 
   topLinks: [
-    { label: "Portfolio",  url: "https://drive.google.com/file/d/1v3chEFxn-36QMPLapDyxTuzzTotvQAOM/view?usp=sharing" },   /* <- paste your Google Drive link */
-    { label: "CV",         url: "https://drive.google.com/file/d/1oZ_SNTAEhYzjYDyog_UCrjKEzFWzL2PJ/view?usp=sharing" }    /* <- paste your Google Drive link */
+    { label: "Portfolio",  url: "Sangeetha-Devarajan-Portfolio.pdf" },
+    { label: "CV",         url: "Sangeetha-Devarajan-CV.pdf" }
   ],
 
   interests: "Architecture · Urban design · Urban planning · Energy simulations · Parametric design",
@@ -520,17 +520,23 @@ function buildDetail(id, row) {
   const node = document.createElement('article');
   node.className = 'detail';
   node.id = id;
+  const hasLinks = (d.links || []).length > 0;
+  const linksBlock = hasLinks
+    ? '<div class="block-label">Links</div>' +
+      '<div class="detail-links">' +
+        d.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join('') +
+      '</div>'
+    : '';
   node.innerHTML =
     '<span class="detail-port"></span>' +
     `<div class="panel-head"><span>Synopsis</span><span class="panel-path">{1;0}</span></div>` +
     `<h2 class="detail-title">${row.title}</h2>` +
     (d.meta ? `<div class="detail-meta">${d.meta}</div>` : '') +
+    linksBlock +
     d.blocks.map(b =>
       `<div class="block-label">${b.label}</div><div class="block-body">${b.text}</div>`
     ).join('') +
-    '<div class="block-label">Links</div>' +
-    '<div class="detail-links">' +
-      (d.links || []).map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join('') +
+    '<div class="detail-links detail-back">' +
       `<button type="button" data-close="${id}">← Back to list</button>` +
     '</div>';
   node.querySelector('[data-close]').addEventListener('click', () => close());
